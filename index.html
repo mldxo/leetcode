@@ -59,8 +59,17 @@
             if (commentEndIndex !== -1 && commentEndIndex < tableEnd) {
                 tableEnd = commentEndIndex;
             }
-            const tableMarkdown = markdown.substring(tableStart, tableEnd);
+            let tableMarkdown = markdown.substring(tableStart, tableEnd);
             return tableMarkdown;
+        }
+
+        function prependGitHubURL(tableMarkdown) {
+            const githubBaseURL = 'https://github.com/mldxo/leetcode/blob/main/';
+            const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+            const modifiedMarkdown = tableMarkdown.replace(regex, (match, linkText, filePath) => {
+                return `[${linkText}](${githubBaseURL}${filePath})`;
+            });
+            return modifiedMarkdown;
         }
     
         function displayTable(tableMarkdown) {
@@ -70,7 +79,8 @@
     
         async function init() {
             const markdown = await fetchMarkdown();
-            const tableMarkdown = extractTable(markdown);
+            let tableMarkdown = extractTable(markdown);
+            tableMarkdown = prependGitHubURL(tableMarkdown);
             displayTable(tableMarkdown);
         }
     
