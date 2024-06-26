@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Problems</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+        thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+        }
+        tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+    
+        tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+    
+        tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+    
+        tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+    </style>
+</head>
+<body>
+    <div id="markdownTable"></div>
+
+    <script>
+        async function fetchMarkdown() {
+            const url = 'https://raw.githubusercontent.com/mldxo/leetcode/main/README.md';
+            const response = await fetch(url);
+            const data = await response.text();
+            return data;
+        }
+    
+        function extractTable(markdown) {
+            const tableStart = markdown.indexOf("## All Problems");
+            let tableEnd = markdown.indexOf("## License");
+            const commentEndIndex = markdown.indexOf("<!--");
+            if (commentEndIndex !== -1 && commentEndIndex < tableEnd) {
+                tableEnd = commentEndIndex;
+            }
+            const tableMarkdown = markdown.substring(tableStart, tableEnd);
+            return tableMarkdown;
+        }
+    
+        function displayTable(tableMarkdown) {
+            const html = marked.parse(tableMarkdown);
+            document.getElementById('markdownTable').innerHTML = html;
+        }
+    
+        async function init() {
+            const markdown = await fetchMarkdown();
+            const tableMarkdown = extractTable(markdown);
+            displayTable(tableMarkdown);
+        }
+    
+        init();
+    </script>
+</body>
+</html>
