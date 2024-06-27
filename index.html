@@ -63,14 +63,14 @@
             return tableMarkdown;
         }
 
-        //function prependGitHubURL(tableMarkdown) {
-        //    const githubBaseURL = 'https://github.com/mldxo/leetcode/blob/main/';
-        //    const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
-        //    const modifiedMarkdown = tableMarkdown.replace(regex, (match, linkText, filePath) => {
-        //        return `[${linkText}](${githubBaseURL}${filePath})`;
-        //    });
-        //    return modifiedMarkdown;
-        //}
+        function prependGitHubURL(tableMarkdown) {
+            const githubBaseURL = 'https://github.com/mldxo/leetcode/blob/main/';
+            const regex = /\[([^\]]+)\]\(([^)]+\.(c|cpp|py))\)/g;
+            const modifiedMarkdown = tableMarkdown.replace(regex, (match, linkText, filePath) => {
+                return `[${linkText}](${githubBaseURL}${filePath})`;
+            });
+            return modifiedMarkdown;
+        }
     
         function displayTable(tableMarkdown) {
             const html = marked.parse(tableMarkdown);
@@ -80,7 +80,7 @@
         async function init() {
             const markdown = await fetchMarkdown();
             let tableMarkdown = extractTable(markdown);
-            //tableMarkdown = prependGitHubURL(tableMarkdown);
+            tableMarkdown = prependGitHubURL(tableMarkdown);
             displayTable(tableMarkdown);
         }
     
