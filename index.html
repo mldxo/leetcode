@@ -75,6 +75,53 @@
         function displayTable(tableMarkdown) {
             const html = marked.parse(tableMarkdown);
             document.getElementById('markdownTable').innerHTML = html;
+            makeHeadersSortable();
+            addCursorPointerToHeaders();
+        }
+        
+        function addCursorPointerToHeaders() {
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = `#markdownTable th { cursor: pointer; }`;
+            document.getElementsByTagName('head')[0].appendChild(style);
+        }
+
+        function makeHeadersSortable() {
+            const table = document.querySelector('#markdownTable table');
+            if (!table) return;
+            const headers = table.querySelectorAll('th');
+            const tableBody = table.querySelector('tbody');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+        
+            const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+        
+            const getCellValue = (row, index) => row.children[index].innerText || row.children[index].textContent;
+        
+            const comparer = (index, asc) => (a, b) => {
+                if (headers[index].textContent.replace(/ \u2191|\u2193/, '') === 'Difficulty') {
+                    return (asc ? 1 : -1) * (difficultyOrder[getCellValue(a, index)] - difficultyOrder[getCellValue(b, index)]);
+                } else {
+                    const valueA = getCellValue(a, index), valueB = getCellValue(b, index);
+                    return valueA !== '' && valueB !== '' && !isNaN(valueA) && !isNaN(valueB) ? 
+                        (asc ? 1 : -1) * (valueA - valueB) : 
+                        (asc ? 1 : -1) * valueA.toString().localeCompare(valueB);
+                }
+            };
+        
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    headers.forEach(h => h.textContent = h.textContent.replace(/ \u2191|\u2193/, ''));
+        
+                    const isSorted = header.classList.contains('asc');
+                    const asc = !isSorted;
+                    headers.forEach(h => h.classList.remove('asc'));
+                    header.classList.toggle('asc', asc);
+        
+                    header.textContent = header.textContent + (asc ? ' \u2193' : ' \u2191');
+        
+                    rows.sort(comparer(index, asc)).forEach(row => tableBody.appendChild(row));
+                });
+            });
         }
     
         async function init() {
