@@ -98,7 +98,7 @@
             const getCellValue = (row, index) => row.children[index].innerText || row.children[index].textContent;
         
             const comparer = (index, asc) => (a, b) => {
-                if (headers[index].textContent.replace(/ \u2191|\u2193/, '') === 'Difficulty') {
+                if (headers[index].textContent.replace(/ \u2193|\u2191/, '') === 'Difficulty') {
                     return (asc ? 1 : -1) * (difficultyOrder[getCellValue(a, index)] - difficultyOrder[getCellValue(b, index)]);
                 } else {
                     const valueA = getCellValue(a, index), valueB = getCellValue(b, index);
@@ -110,16 +110,33 @@
         
             headers.forEach((header, index) => {
                 header.addEventListener('click', () => {
-                    headers.forEach(h => h.textContent = h.textContent.replace(/ \u2191|\u2193/, ''));
-        
-                    const isSorted = header.classList.contains('asc');
-                    const asc = !isSorted;
-                    headers.forEach(h => h.classList.remove('asc'));
-                    header.classList.toggle('asc', asc);
-        
-                    header.textContent = header.textContent + (asc ? ' \u2193' : ' \u2191');
-        
-                    rows.sort(comparer(index, asc)).forEach(row => tableBody.appendChild(row));
+                    const currentSort = header.getAttribute('data-sort');
+                    const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+                    headers.forEach(h => {
+                        h.setAttribute('data-sort', '');
+                        h.textContent = h.textContent.replace(/ \u2193|\u2191/, '');
+                    });
+                    header.setAttribute('data-sort', newSort);
+            
+                    header.textContent += newSort === 'asc' ? ' \u2193' : ' \u2191';
+            
+                    const isDifficulty = header.textContent.includes('Difficulty');
+                    rows.sort((a, b) => {
+                        let valueA = getCellValue(a, index);
+                        let valueB = getCellValue(b, index);
+            
+                        if (isDifficulty) {
+                            valueA = difficultyOrder[valueA];
+                            valueB = difficultyOrder[valueB];
+                        } else {
+                            valueA = isNaN(valueA) ? valueA : parseFloat(valueA);
+                            valueB = isNaN(valueB) ? valueB : parseFloat(valueB);
+                        }
+            
+                        if (valueA < valueB) return newSort === 'asc' ? -1 : 1;
+                        if (valueA > valueB) return newSort === 'asc' ? 1 : -1;
+                        return 0;
+                    }).forEach(row => tableBody.appendChild(row));
                 });
             });
         }
